@@ -2,7 +2,7 @@ import enum
 import logging
 from typing import Any
 
-from .models import FSMResult, SystemState
+from .models import FSMResult
 from .intent_nlu import IntentRecognizer
 from .whatsapp_service import WhatsAppClient
 from .voice_service import VoiceService

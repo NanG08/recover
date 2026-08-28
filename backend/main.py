@@ -1,5 +1,6 @@
 import os
 import logging
+from dotenv import load_dotenv
 from fastapi import FastAPI, Request, BackgroundTasks, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -12,6 +13,8 @@ from .whatsapp_service import WhatsAppClient
 from .voice_service import VoiceService
 from .models import RazorpayWebhookPayload
 from .utils import get_redis, get_db
+
+load_dotenv()
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("app")
@@ -40,7 +43,7 @@ connected_ws: list[WebSocket] = []
 async def startup_event():
     # Initialise Redis and DB pools
     await get_redis()
-    await get_db()
+    get_db()
     logger.info("Startup: Redis and PostgreSQL connections established")
 
 @app.on_event("shutdown")
@@ -48,7 +51,7 @@ async def shutdown_event():
     # Close connections gracefully
     redis = await get_redis()
     await redis.close()
-    db = await get_db()
+    db = get_db()
     await db.close()
     logger.info("Shutdown: Connections closed")
 
@@ -91,25 +94,32 @@ async def process_event(payload: RazorpayWebhookPayload):
     # Run through the finite state machine
     result = await fsm_engine.handle_event(payload)
 
-    # Persist audit trail entry to PostgreSQL
-    db = await get_db()
-    async with db.acquire() as conn:
-        await conn.execute(
-            """
-            INSERT INTO audit_trail (
-                timestamp, transaction_id, amount, channel, language, intent,
-                confidence_score, razorpay_api_status, system_state
-            ) VALUES (NOW(), $1, $2, $3, $4, $5, $6, $7, $8)
-            """,
-            payload.payment_id,
-            payload.amount,
-            payload.channel,
-            payload.language,
-            result.intent,
-            result.confidence,
-            result.api_status,
-            result.new_state.name,
-        )
+    # Persist audit trail entry to PostgreSQL using psycopg2
+    db_pool = get_db()
+    conn = db_pool.getconn()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                INSERT INTO audit_trail (
+                    timestamp, transaction_id, amount, channel, language, intent,
+                    confidence_score, razorpay_api_status, system_state
+                ) VALUES (NOW(), %s, %s, %s, %s, %s, %s, %s, %s)
+                """,
+                (
+                    payload.payment_id,
+                    payload.amount,
+                    payload.channel,
+                    payload.language,
+                    result.intent,
+                    result.confidence,
+                    result.api_status,
+                    result.new_state.name,
+                ),
+            )
+            conn.commit()
+    finally:
+        db_pool.putconn(conn)
     # Broadcast to connected websockets
     await broadcast_audit({
         "timestamp": "now",  # client will replace with actual value

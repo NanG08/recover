@@ -8,7 +8,7 @@ class RazorpayWebhookPayload(BaseModel):
     event: Literal['payment.failed', 'subscription.halted', 'invoice.overdue']
     payment_id: str = Field(..., alias='payment_id')
     amount: int = Field(..., description='Amount in the smallest currency unit (e.g., paise)')
-    currency: str = Field(..., default='INR')
+    currency: str = Field(default='INR')
     channel: Literal['voice', 'whatsapp']
     language: Literal['en', 'hi', 'hr']  # en=English, hi=Hindi, hr=Haryanvi
     # Additional optional fields we may receive

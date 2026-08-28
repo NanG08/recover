@@ -4,15 +4,15 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        'bg-base': '#080809',
-        'bg-surface': '#0F1012',
-        'bg-hover': '#16181D',
-        'border': '#1F222B',
-        'text-primary': '#F3F4F6',
-        'text-secondary': '#71717A',
-        'accent-ice': '#38BDF8',
-        'success': '#34D399',
-        'error': '#F87171',
+        'bg-base': '#ffffff',
+        'bg-surface': '#f7f7f5',
+        'bg-hover': '#eeeeeb',
+        'border': '#deded8',
+        'text-primary': '#111111',
+        'text-secondary': '#6d6d66',
+        'accent-ice': '#111111',
+        'success': '#2f7d57',
+        'error': '#b84a42',
       },
       fontFamily: {
         mono: ['"JetBrains Mono"', '"Fira Code"', 'monospace'],
