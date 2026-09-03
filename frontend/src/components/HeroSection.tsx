@@ -1,5 +1,4 @@
-import React from 'react';
-import { useStore } from '../store/state';
+import React from 'react'
 
 /**
  * Hero section displayed at the top of the landing page.

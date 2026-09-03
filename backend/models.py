@@ -1,25 +1,34 @@
+import enum
 from pydantic import BaseModel, Field
 from typing import Literal, Optional
 
+
+class SystemState(enum.Enum):
+    INITIATED             = "INITIATED"
+    VOICE_OUTBOUND_QUEUED = "VOICE_OUTBOUND_QUEUED"
+    IN_CALL               = "IN_CALL"
+    WHATSAPP_LINK_SENT    = "WHATSAPP_LINK_SENT"
+    PROMISE_TO_PAY        = "PROMISE_TO_PAY"
+    PAYMENT_RESOLVED      = "PAYMENT_RESOLVED"
+    ESCALATED_DISPUTE     = "ESCALATED_DISPUTE"
+
+
 class RazorpayWebhookPayload(BaseModel):
-    """Schema for Razorpay webhook events we care about.
-    Only the fields needed for the engine are captured.
-    """
     event: Literal['payment.failed', 'subscription.halted', 'invoice.overdue']
     payment_id: str = Field(..., alias='payment_id')
-    amount: int = Field(..., description='Amount in the smallest currency unit (e.g., paise)')
+    amount: int = Field(..., description='Amount in paise')
     currency: str = Field(default='INR')
-    channel: Literal['voice', 'whatsapp']
-    language: Literal['en', 'hi', 'hr']  # en=English, hi=Hindi, hr=Haryanvi
-    # Additional optional fields we may receive
+    # Uppercase to match frontend + FSM usage
+    channel: Literal['VOICE', 'WHATSAPP']
+    language: Literal['en', 'hi', 'hr']
     notes: Optional[dict] = None
-    # Raw payload is kept for debugging
     raw: Optional[dict] = None
+
+    model_config = {"populate_by_name": True}
+
 
 class FSMResult(BaseModel):
     intent: str
     confidence: float
     api_status: str
-    new_state: 'SystemState'
-
-# Forward reference for SystemState enum defined later
+    new_state: SystemState

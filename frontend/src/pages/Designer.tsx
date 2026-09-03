@@ -1,7 +1,7 @@
 // src/pages/Designer.tsx
 import React, { useState } from 'react';
 import { useStore, LayoutItem } from '../store/state';
-import Badge from '../components/Badge';
+import { Badge } from '../components/Badge';
 
 /**
  * Simple designer UI that lets the user enable/disable sections of the landing page

@@ -60,9 +60,9 @@ const MetricsBar: React.FC = () => {
         accent="ice"
       />
       <MetricCard
-        label="NLU Cost"
-        value="₹0.00"
-        sub="FastText · zero API calls"
+        label="NLU Engine"
+        value="Groq"
+        sub="llama-4-maverick · regex fallback"
         accent="success"
       />
     </div>

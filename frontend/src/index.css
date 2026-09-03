@@ -5,11 +5,12 @@
 @tailwind utilities;
 
 html, body, #root {
-  background-color: #ffffff;
+  background-color: #FFFFFF;
   color: #111111;
   height: 100%;
 }
 
+/* Subtle grid overlay */
 body::before {
   content: '';
   position: fixed;
@@ -27,18 +28,18 @@ button { cursor: pointer; }
 
 @keyframes reveal-up {
   from { opacity: 0; transform: translateY(12px); }
-  to { opacity: 1; transform: translateY(0); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes signal-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 #2f7d5740; }
-  50% { box-shadow: 0 0 0 7px #2f7d5700; }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(47, 125, 87, 0.4); }
+  50%       { box-shadow: 0 0 0 6px rgba(47, 125, 87, 0); }
 }
 
-.reveal-up { animation: reveal-up 500ms cubic-bezier(.22, 1, .36, 1) both; }
+.reveal-up    { animation: reveal-up 500ms cubic-bezier(.22, 1, .36, 1) both; }
 .signal-pulse { animation: signal-pulse 2s ease-out infinite; }
 
-::-webkit-scrollbar { width: 4px; height: 4px; }
-::-webkit-scrollbar-track { background: #f7f7f5; }
-::-webkit-scrollbar-thumb { background: #c8c8c0; border-radius: 2px; }
+::-webkit-scrollbar       { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: #F7F7F5; }
+::-webkit-scrollbar-thumb { background: #C8C8C0; border-radius: 2px; }
 ::-webkit-scrollbar-thumb:hover { background: #111111; }

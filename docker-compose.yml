@@ -6,7 +6,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-recover}
       POSTGRES_DB: ${POSTGRES_DB:-recover_db}
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./infra/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
@@ -37,8 +37,8 @@ services:
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-recover}:${POSTGRES_PASSWORD:-recover}@postgres:5432/${POSTGRES_DB:-recover_db}
       REDIS_URL: redis://redis:6379/0
-      WHATSAPP_TOKEN: ${WHATSAPP_TOKEN:-local-demo-token}
-      WHATSAPP_PHONE_NUMBER_ID: ${WHATSAPP_PHONE_NUMBER_ID:-local-demo-phone-id}
+      TWILIO_WHATSAPP_FROM: ${TWILIO_WHATSAPP_FROM:-whatsapp:+14155238886}
+      TWILIO_PUBLIC_BASE_URL: ${TWILIO_PUBLIC_BASE_URL:-}
     ports:
       - "8000:8000"
     depends_on:

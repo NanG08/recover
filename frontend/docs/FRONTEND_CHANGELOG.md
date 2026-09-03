@@ -1,5 +1,28 @@
 # FRONTEND DEVELOPMENT & TROUBLESHOOTING LOG
 
+## [v0.3.0 — Full Pipeline Fix]
+
+### Components Fixed
+- `HomePage.tsx` — Re-added `useWebSocket('/ws/audit')` call that was dropped in v0.2 rewrite; live backend events now stream into the audit table
+- `WhatsAppPreview.tsx` — Wired "SEND" button to real `POST /api/twilio/whatsapp/send`; added phone + amount inputs; customer sim buttons now fire `POST /api/demo` to push a real event through the FSM pipeline; buttons disabled until message is sent; live API response shown inline
+- `AuditTrailTable.tsx` — Fetches real history from `GET /api/audit` on mount; added REFRESH button; fixed state/channel color map to cover all FSM states (`PROMISE_TO_PAY`, `WHATSAPP_LINK_SENT`, `ESCALATED_DISPUTE`); demo interval slowed to 5s
+- `useWebSocket.ts` — Auto-selects `wss://` under HTTPS, `ws://` under HTTP; suppresses console errors when backend is offline
+- `vite.config.ts` — Added dev proxy: `/api/*` → `http://localhost:8000`, `/ws/*` → `ws://localhost:8000`
+
+### Problems Encountered & Resolutions
+- **Issue**: `useWebSocket` dropped from `HomePage` during v0.2 rewrite — no live events reached the UI
+  - **Resolution**: Re-added hook call in `HomePage`
+- **Issue**: WhatsApp button clicks were pure local state — never reached backend or FSM
+  - **Resolution**: Wired to `POST /api/twilio/whatsapp/send`; sim clicks fire `POST /api/demo`
+- **Issue**: Audit table empty on page load — no history fetch
+  - **Resolution**: `useEffect` on mount calls `GET /api/audit`; gracefully falls back to mock data if backend offline
+- **Issue**: `ws://` hardcoded — breaks under HTTPS/production
+  - **Resolution**: Protocol auto-detected from `window.location.protocol`
+- **Issue**: No Vite proxy — frontend fetch calls to `/api/*` returned 404 in dev
+  - **Resolution**: Added `server.proxy` in `vite.config.ts`
+
+---
+
 ## [v0.2.0 — AfterNow Redesign]
 
 ### Components Built / Rewritten
@@ -10,30 +33,18 @@
 - `AuditTrailTable.tsx` — Dense data grid, dialect + state filters, live row injection every 4s, collapsible raw payload per row
 - `HomePage.tsx` — Stripped to pure dashboard layout (no hero section)
 
-### UI/UX Decisions
-- Applied `#080809` void background with `#1F222B` 1px borders throughout
-- Replaced rounded pill buttons with sharp 0px/4px radius ice-blue accent elements
-- Noise texture via inline SVG data URI — eliminates `/noise.png` 404
-- Metrics bar uses `gap-px bg-border` grid trick for seamless 1px dividers between cards
-- Waveform uses 48 vertical bars instead of a sine line — more authentic audio visualizer feel
-- All numerical data in `font-mono`, labels in `font-sans` uppercase tracking-widest
-
 ### Problems Encountered & Resolutions
 - **Issue**: PostCSS error — `@import` after `@tailwind` directives in `index.css`
-  - **Resolution**: Moved Google Fonts `@import` to line 1, before all `@tailwind` directives
-- **Issue**: Zustand v4 removed default export; `import create from 'zustand'` throws at runtime
+  - **Resolution**: Moved Google Fonts `@import` to line 1
+- **Issue**: Zustand v4 removed default export
   - **Resolution**: Changed to named import `import { create } from 'zustand'`
-- **Issue**: `devtools` middleware caused type inference issues with strict TS
-  - **Resolution**: Removed `devtools` wrapper; store is simple enough without it
-- **Issue**: `useWebSocket` crashed the app when backend is offline during frontend-only dev
-  - **Resolution**: Wrapped WebSocket constructor in try/catch; errors are silently swallowed
-- **Issue**: Missing `/noise.png` caused a 404 on every page load
-  - **Resolution**: Replaced with inline SVG `feTurbulence` data URI in `index.css`
-- **Issue**: `react-window` FixedSizeList incompatible with variable-height collapsible rows
-  - **Resolution**: Replaced with native `<table>` + `overflow-auto max-h` scroll container; simpler and more flexible
+- **Issue**: Missing `/noise.png` caused 404
+  - **Resolution**: Replaced with inline SVG `feTurbulence` data URI
+- **Issue**: `react-window` incompatible with variable-height collapsible rows
+  - **Resolution**: Replaced with native `<table>` + `overflow-auto max-h` scroll container
 
 ## [v0.1.0 — Initial Scaffold]
 - Bootstrapped Vite + React + TypeScript project
 - Installed: `zustand`, `framer-motion`, `lucide-react`, `react-window`, `clsx`, `tailwindcss`
-- Set up Tailwind design tokens: `bg-base`, `bg-surface`, `accent-ice`, `success`, `error`, `border`
-- Created initial component stubs for all 5 zones
+- Set up Tailwind design tokens
+- Created initial component stubs
