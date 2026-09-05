@@ -1,118 +1,130 @@
-# Recover — AI-Powered Payment Recovery Engine
+# Recover – AI‑Powered Payment Recovery Engine (Unified Repository)
 
-> Built for [Razorpay Buildathon](https://razorpay.com/buildathon/)
+## Overview
 
-Recover automates failed payment follow-ups via **Voice** and **WhatsApp**, using a deterministic FSM + LLM intent classification to resolve payments without human agents.
+This repository contains the full **Recover** payment‑recovery system split into two logical parts:
 
----
+| Part | Location | Purpose |
+|------|----------|---------|
+| **Twilio‑enabled production code** | `C:/Users/ASUS/Downloads/nandika-razorpay/nandika-razorpay` | FastAPI backend, React Vite dashboard, Twilio WhatsApp integration, voice via Vapi. |
+| **Mock‑logic demo** | `C:/Users/ASUS/Downloads/nandika-recover-main/nandika-recover-main` | Stand‑alone mock implementation that **simulates** the full flow **without external services**. It is intended **only for demo / testing purposes** and is **not** the permanent production code shown in the video. |
 
-## What it does
-
-When a `payment.failed` webhook arrives from Razorpay:
-
-1. **Intent classification** — Groq `llama-3.3-70b-versatile` classifies the customer's response (`AGREE_TO_PAY` / `ASK_DELAY` / `DISPUTE_CHARGE`) with regex fallback for zero-downtime
-2. **FSM transitions** — State machine moves the payment through `INITIATED → PROMISE_TO_PAY → PAYMENT_RESOLVED` (or `ESCALATED_DISPUTE` after 2 retries)
-3. **Side-effects** — Razorpay Payment Link created, WhatsApp button message sent via Twilio, or outbound voice call placed
-4. **Audit trail** — Every event persisted to PostgreSQL and streamed live to the dashboard via WebSocket
-
-```
-Razorpay webhook → HMAC verify → Redis dedup lock → Groq NLU → FSM → Payment Link API
-                                                                    ↓
-                                                          PostgreSQL + WebSocket → Dashboard
-```
+Both folders are intended to be committed together so that a single GitHub repository can be uploaded and cloned elsewhere.
 
 ---
 
-## Stack
+## What the project does
 
-| Layer | Tech |
-|---|---|
-| Backend | FastAPI + psycopg3 + Redis |
-| NLU | Groq `llama-4-maverick-17b-128e-instruct` + regex fallback |
-| Payments | Razorpay Payment Links API |
-| Messaging | Twilio Voice + WhatsApp |
-| Frontend | React + Vite + TypeScript + Tailwind + Zustand |
-| Infra | Docker Compose (Postgres 16 + Redis 7) |
+1. **Webhook ingestion** – Receives Razorpay `payment.failed` webhooks.
+2. **NLU classification** – Uses Groq (or regex fallback) to understand the customer's intent in English, Hindi, or Haryanvi.
+3. **Finite‑state machine** – Drives the conversation through deterministic states (`INITIATED → PROMISE_TO_PAY → PAYMENT_RESOLVED`, etc.).
+4. **Side‑effects** –
+   - Creates a Razorpay payment‑link.
+   - Sends a WhatsApp reminder via **Twilio** (production) **or** a mocked message (demo).
+   - Optionally places an outbound AI voice call via **Vapi**.
+5. **Audit trail** – Persists every event in PostgreSQL, streams updates over a WebSocket, and renders a live dashboard.
+
+> **Note:** The logic in both the production and mock codebases is deliberately written to be **correct and complete**, regardless of whether external services are reachable. The mock version simply stubs out network calls.
 
 ---
 
-## Quick Start
+## Repository layout
 
-### Prerequisites
-- Docker Desktop running
-- Python 3.11+ with a venv
-- Node.js 18+
-
-### 1. Clone and configure
-
-```bash
-cp .env.example .env
-# Fill in: RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET, TWILIO_*, GROQ_API_KEY
+```
+.
+├─ nandika-razorpay/            # Production implementation (Twilio, Vapi, real Razorpay keys)
+│   ├─ backend/                 # FastAPI app, FSM, Twilio/Vapi clients
+│   ├─ frontend/                # React + Vite dashboard
+│   ├─ docker-compose.yml       # Services: backend, postgres, redis
+│   ├─ .env.example             # Example env file – fill with real credentials
+│   └─ README.md                # (this file)
+│
+├─ nandika-recover-main/        # Mock implementation (no external accounts required)
+│   ├─ backend/                 # Same API surface, but all external calls are stubbed
+│   ├─ frontend/                # Lightweight UI – still uses the same dashboard code
+│   ├─ scripts/                 # `smoke_test.py` works out‑of‑the‑box
+│   └─ README.md                # Brief guide for the mock version
+│
+└─ docs/                        # Global documentation (setup, architecture, contribution)
+    ├─ integration.md           # Twilio, Vapi, Razorpay setup instructions
+    └─ development.md           # How to run the project locally (docker, ngrok, etc.)
 ```
 
-Get a free Groq API key at [console.groq.com](https://console.groq.com).
+---
 
-### 2. Start infrastructure
+## Getting started (production)
+
+1. **Clone the repository** (once it is on GitHub).
+2. **Create the environment files**:
+   ```bash
+   cd nandika-razorpay
+   cp .env.example .env
+   # edit .env – fill TWILIO_*, GROQ_API_KEY, RAZORPAY_* and any Vapi vars you need
+   cd frontend && cp .env.example .env   # add VITE_DEEPGRAM_API_KEY if you use voice
+   ```
+3. **Start the stack** (Docker Compose will spin up Postgres, Redis and expose the backend on port 8000):
+   ```bash
+   docker compose up -d
+   ```
+4. **Run the frontend**:
+   ```bash
+   cd frontend
+   npm install
+   npm run dev   # Vite dev server proxies /api → http://127.0.0.1:8000
+   ```
+5. **Expose the backend for Twilio / Vapi** – e.g. with ngrok:
+   ```bash
+   ngrok http 8000
+   # set PUBLIC_BASE_URL in .env to the https URL ngrok gives you
+   ```
+6. Open the dashboard at `http://localhost:15173` and verify the **preflight** endpoint (`GET /config/preflight`).
+
+---
+
+## Getting started (mock version)
+
+The mock folder provides a completely self‑contained environment that does **not** require real Twilio, Vapi, or Razorpay credentials. It is **only** for demonstration, testing and CI purposes.
 
 ```bash
-docker-compose up postgres redis -d
-```
-
-### 3. Start backend
-
-```bash
-cd recover
-python -m venv .venv && .venv\Scripts\activate   # Windows
-pip install -r backend/requirements.txt
-uvicorn backend.main:app --reload --port 8000
-```
-
-### 4. Start frontend
-
-```bash
+cd nandika-recover-main
+# No .env is needed – mock mode is the default
+docker compose up -d   # starts the same services but the backend uses stubbed clients
 cd frontend
 npm install
 npm run dev
 ```
 
-Dashboard → [http://localhost:5173](http://localhost:5173)  
-API docs → [http://localhost:8000/docs](http://localhost:8000/docs)
+You can now exercise the full UI flow; all external calls are simulated and recorded in the local PostgreSQL database.
 
 ---
 
-## Key API Endpoints
+## Documentation
 
-| Method | Path | Description |
-|---|---|---|
-| `POST` | `/webhook` | Razorpay webhook (HMAC verified) |
-| `POST` | `/demo` | Inject synthetic event for UI testing |
-| `GET` | `/audit` | Paginated audit trail from PostgreSQL |
-| `WS` | `/ws/audit` | Live audit stream |
-| `GET/POST` | `/webhook/whatsapp` | Meta WhatsApp Cloud API |
-| `POST` | `/twilio/voice/incoming` | Twilio Voice TwiML |
-| `POST` | `/twilio/whatsapp/send` | Send WhatsApp payment reminder |
+- **`docs/integration.md`** – detailed steps for configuring Twilio Sandbox, Vapi keys, Razorpay webhooks, and ngrok.
+- **`docs/development.md`** – how to run unit tests, linting, and contribute.
+- **`backend/README.md`** – architecture of the FastAPI service, FSM, and client abstractions.
+- **`frontend/README.md`** – UI component guide, WebSocket handling, and state‑mapping.
+
+All docs are kept in the `docs/` directory and referenced from this top‑level README.
 
 ---
 
-## FSM State Transitions
+## Contributing
 
-```
-INITIATED ──AGREE_TO_PAY──→ PAYMENT_RESOLVED
-         ──ASK_DELAY──────→ PROMISE_TO_PAY ──AGREE_TO_PAY──→ PAYMENT_RESOLVED
-         ──DISPUTE_CHARGE─→ ESCALATED_DISPUTE
-         ──(2 retries)────→ ESCALATED_DISPUTE
-```
-
----
-
-## Multi-dialect NLU
-
-Supports **English**, **Hindi**, and **Haryanvi** — Groq `llama-4-maverick-17b-128e-instruct` handles natural speech like _"haan bhai pay kar dunga"_ that regex alone would miss. Regex patterns serve as an instant fallback if the Groq API is unavailable.
+1. Fork the repo on GitHub.
+2. Create a feature branch.
+3. Ensure the code passes the smoke test:
+   ```bash
+   python scripts/smoke_test.py   # from the root of each sub‑project
+   ```
+4. Open a pull request – CI will run the same tests against both the production and mock folders.
 
 ---
 
-## Security
+## License
 
-- HMAC-SHA256 signature verification on all Razorpay webhooks
-- Redis idempotency lock (30s TTL) prevents duplicate processing
-- No secrets logged; all credentials via environment variables
+Apache 2.0 – see `LICENSE` at the repository root.
+
+---
+
+*This README was generated to give a clear, single source of truth for the combined repository, making it ready for upload to GitHub.*
