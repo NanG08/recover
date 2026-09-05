@@ -36,8 +36,25 @@ button { cursor: pointer; }
   50%       { box-shadow: 0 0 0 6px rgba(47, 125, 87, 0); }
 }
 
+@keyframes flow-shimmer {
+  0%, 100% { opacity: 0.35; transform: scaleX(0.7); }
+  50% { opacity: 1; transform: scaleX(1); }
+}
+
 .reveal-up    { animation: reveal-up 500ms cubic-bezier(.22, 1, .36, 1) both; }
 .signal-pulse { animation: signal-pulse 2s ease-out infinite; }
+.scroll-reveal { opacity: 0; transform: translateY(28px); transition: opacity 700ms ease, transform 700ms cubic-bezier(.22, 1, .36, 1); }
+.scroll-reveal.is-visible { opacity: 1; transform: translateY(0); }
+.flow-panel { overflow: hidden; }
+.flow-panel::after { content: ''; display: block; height: 1px; margin-top: 1.5rem; background: #b9f27c; transform-origin: left; animation: flow-shimmer 2.8s ease-in-out infinite; }
+.flow-step { min-height: 124px; }
+.flow-arrow { transition: color 300ms ease, transform 300ms ease; }
+.flow-arrow:hover { color: #b9f27c; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: 0.01ms !important; }
+  .scroll-reveal { opacity: 1; transform: none; }
+}
 
 ::-webkit-scrollbar       { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: #F7F7F5; }

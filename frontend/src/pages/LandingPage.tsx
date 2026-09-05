@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { ArrowDown, ArrowRight, Check, Circle, Radio, ShieldCheck, Sparkles, Workflow } from 'lucide-react'
+import { ArrowDown, ArrowRight, Check, Circle, Radio, ShieldCheck, Workflow } from 'lucide-react'
 
 interface Props {
   onEnter: () => void;
@@ -28,7 +28,20 @@ const LandingPage: React.FC<Props> = ({ onEnter }) => {
   useEffect(() => {
     const ticker = window.setInterval(() => setRecovered((v) => v + Math.floor(Math.random() * 420 + 80)), 2400)
     const signal = window.setInterval(() => setActiveSignal((v) => (v + 1) % signals.length), 1800)
-    return () => { window.clearInterval(ticker); window.clearInterval(signal) }
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible')
+          revealObserver.unobserve(entry.target)
+        }
+      })
+    }, { threshold: 0.12 })
+    document.querySelectorAll('.scroll-reveal').forEach((element) => revealObserver.observe(element))
+    return () => {
+      window.clearInterval(ticker)
+      window.clearInterval(signal)
+      revealObserver.disconnect()
+    }
   }, [])
 
   return (
@@ -43,7 +56,7 @@ const LandingPage: React.FC<Props> = ({ onEnter }) => {
         </div>
       </nav>
 
-      <main className="mx-auto grid w-full max-w-[1440px] flex-1 grid-cols-1 gap-6 px-5 py-6 md:px-10 md:py-10 lg:grid-cols-[1.2fr_.8fr] lg:gap-12">
+      <main className="mx-auto grid min-h-[calc(100vh-77px)] w-full max-w-[1440px] flex-1 grid-cols-1 gap-6 px-5 py-10 md:px-10 md:py-14 lg:grid-cols-[1.2fr_.8fr] lg:gap-12">
         <div className="flex flex-col justify-center reveal-up">
           <div className="mb-8 flex items-center gap-2 font-ui text-[10px] uppercase tracking-[0.2em] text-text-secondary">
             <Radio size={13} className="text-success" />
@@ -56,7 +69,7 @@ const LandingPage: React.FC<Props> = ({ onEnter }) => {
             Recover turns failed payments into precise, human conversations across voice and WhatsApp — powered by Groq LLM intent classification and a deterministic FSM.
           </p>
           <div className="mt-10 flex flex-wrap items-center gap-3">
-            <button onClick={onEnter} className="group flex items-center gap-4 bg-black px-5 py-3 font-mono text-xs uppercase tracking-[0.16em] text-white transition-transform hover:-translate-y-0.5">
+            <button onClick={onEnter} className="group flex items-center gap-4 rounded-md bg-black px-5 py-3 font-mono text-xs uppercase tracking-[0.16em] text-white transition-transform hover:-translate-y-0.5 hover:bg-[#2f7d57]">
               Open control center
               <ArrowRight size={15} className="transition-transform group-hover:translate-x-1" />
             </button>
@@ -67,10 +80,9 @@ const LandingPage: React.FC<Props> = ({ onEnter }) => {
         </div>
 
         <div className="flex flex-col justify-start gap-4 pt-2 reveal-up md:pt-8" style={{ animationDelay: '120ms' }}>
-          <div className="border border-black bg-black p-6 text-white md:p-8">
+          <div className="rounded-md border border-black bg-black p-6 text-white transition-transform duration-300 hover:-translate-y-1 md:p-8">
             <div className="flex items-start justify-between">
               <span className="font-mono text-xs uppercase tracking-[0.2em] text-white/60">Recovered today</span>
-              <Sparkles size={16} className="text-[#b9f27c]" />
             </div>
             <div className="mt-10 font-mono text-4xl tracking-[-0.05em] md:text-6xl">₹{recovered.toLocaleString('en-IN')}</div>
             <div className="mt-6 flex items-center gap-2 font-mono text-xs uppercase tracking-[0.15em] text-[#b9f27c]">
@@ -79,7 +91,7 @@ const LandingPage: React.FC<Props> = ({ onEnter }) => {
           </div>
           <div className="grid grid-cols-3 gap-px border border-border bg-border">
             {signals.map((signal, index) => (
-              <div key={signal.label} className={`min-h-[112px] bg-white p-3 transition-colors md:p-4 ${activeSignal === index ? 'bg-[#f0f0eb]' : ''}`}>
+              <div key={signal.label} className={`min-h-[112px] bg-white p-3 transition-all duration-300 hover:-translate-y-1 hover:bg-[#f0f0eb] md:p-4 ${activeSignal === index ? 'bg-[#f0f0eb]' : ''}`}>
                 <div className="mb-5 flex items-center justify-between"><Circle size={9} className={activeSignal === index ? 'fill-black text-black' : 'text-border'} /><span className="font-mono text-[11px] text-text-secondary">0{index + 1}</span></div>
                 <div className="font-mono text-base font-semibold">{signal.value}</div>
                 <div className="mt-1 text-xs text-text-secondary">{signal.label}</div>
@@ -90,7 +102,7 @@ const LandingPage: React.FC<Props> = ({ onEnter }) => {
         </div>
       </main>
 
-      <section className="border-y border-border bg-[#f7f7f5] px-5 py-10 md:px-10 md:py-14">
+      <section className="scroll-reveal border-y border-border bg-[#f7f7f5] px-5 py-10 md:px-10 md:py-14">
         <div className="mx-auto max-w-[1440px]">
           <div className="flex items-end justify-between gap-6">
             <div>
@@ -105,7 +117,7 @@ const LandingPage: React.FC<Props> = ({ onEnter }) => {
               ['02', 'Classify and act', 'Groq LLM detects customer intent in English, Hindi, or Haryanvi. The FSM picks the right channel and message.'],
               ['03', 'Make the outcome visible', 'Every intent, state change, and API call is written to the live audit trail in real time.'],
             ].map(([number, title, description]) => (
-              <article key={number} className="bg-white p-5 md:p-7">
+              <article key={number} className="rounded-md bg-white p-5 transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_12px_28px_rgba(17,17,17,0.08)] md:p-7">
                 <div className="font-mono text-sm text-success">{number}</div>
                 <h3 className="mt-10 text-xl font-semibold tracking-[-0.02em]">{title}</h3>
                 <p className="mt-3 text-sm leading-6 text-text-secondary">{description}</p>
@@ -115,16 +127,16 @@ const LandingPage: React.FC<Props> = ({ onEnter }) => {
         </div>
       </section>
 
-      <section className="mx-auto grid w-full max-w-[1440px] grid-cols-1 gap-6 border-t border-border px-5 py-10 md:px-10 lg:grid-cols-2 lg:gap-12">
+      <section className="scroll-reveal mx-auto grid w-full max-w-[1440px] grid-cols-1 gap-6 border-t border-border px-5 py-10 md:px-10 lg:grid-cols-2 lg:gap-12">
         {/* Pipeline steps */}
-        <div className="border border-border bg-white p-6 md:p-8">
+        <div className="rounded-md border border-border bg-white p-6 transition-transform duration-300 hover:-translate-y-1 md:p-8">
           <div className="flex items-center gap-2 font-ui text-xs uppercase tracking-[0.18em] text-text-secondary">
             <ShieldCheck size={14} /> Recovery pipeline
           </div>
           <h2 className="mt-5 text-3xl font-semibold tracking-[-0.04em]">Webhook to resolution.</h2>
           <div className="mt-6 space-y-3">
             {PIPELINE.map(([n, step]) => (
-              <div key={n} className="flex items-start gap-3 font-mono text-xs">
+              <div key={n} className="flex items-start gap-3 rounded-md px-2 py-2 font-mono text-xs transition-colors hover:bg-[#f0f0eb]">
                 <span className="text-success shrink-0">{n}</span>
                 <span className="text-text-secondary">{step}</span>
               </div>
@@ -133,17 +145,17 @@ const LandingPage: React.FC<Props> = ({ onEnter }) => {
         </div>
 
         {/* Recovery flow */}
-        <div className="border border-border bg-black p-6 text-white md:p-8">
+        <div className="flow-panel rounded-md border border-border bg-black p-6 text-white md:p-8">
           <div className="flex items-center gap-2 font-ui text-xs uppercase tracking-[0.18em] text-white/60"><Workflow size={14} /> Recovery user flow</div>
           <h2 className="mt-5 text-3xl font-semibold tracking-[-0.04em]">From failed to recovered.</h2>
           <div className="mt-8 grid gap-3 md:grid-cols-4 md:items-center">
             {['Payment fails', 'Intent detected', 'Human channel', 'Payment recovered'].map((step, index) => (
               <React.Fragment key={step}>
-                <div className={`border p-4 transition-colors ${index === activeSignal ? 'border-[#b9f27c] bg-white/10' : 'border-white/20'}`}>
+                <div className={`flow-step rounded-md border p-4 transition-all duration-500 hover:-translate-y-2 hover:bg-white/10 ${index === activeSignal ? 'border-[#b9f27c] bg-white/10 shadow-[0_0_24px_rgba(185,242,124,0.12)]' : 'border-white/20'}`}>
                   <div className="font-mono text-xs text-[#b9f27c]">0{index + 1}</div>
                   <div className="mt-7 text-sm font-medium">{step}</div>
                 </div>
-                {index < 3 && <ArrowDown size={16} className="mx-auto text-white/40 md:rotate-[-90deg]" />}
+                {index < 3 && <ArrowDown size={16} className="flow-arrow mx-auto text-white/40 md:rotate-[-90deg]" />}
               </React.Fragment>
             ))}
           </div>

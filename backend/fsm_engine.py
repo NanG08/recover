@@ -141,16 +141,26 @@ class FSMEngine:
         customer_phone = (payload.notes or {}).get("customer_phone", "")
         customer_name = (payload.notes or {}).get("customer_name", "Customer")
         payment_link = (payload.notes or {}).get("payment_link", "")
+        is_inbound = bool((payload.notes or {}).get("inbound"))
 
         if new_state == SystemState.PAYMENT_RESOLVED:
             link = await self._create_razorpay_payment_link(payload.payment_id, amount)
             api_status = f"payment_link_created:{link}" if link else "payment_resolved_mock"
 
-        elif payload.channel == "WHATSAPP" and customer_phone:
+        elif payload.channel == "WHATSAPP" and customer_phone and not is_inbound:
             await self.whatsapp.send_payment_link(customer_phone, amount, customer_name, payment_link)
             api_status = "whatsapp_sent"
             if redis:
                 await self._set_state(redis, payload.payment_id, SystemState.WHATSAPP_LINK_SENT)
+                session_phone = (
+                    customer_phone.lower()
+                    .replace("whatsapp:", "")
+                    .replace("@c.us", "")
+                    .replace("+", "")
+                    .replace(" ", "")
+                    .strip()
+                )
+                await redis.set(f"whatsapp_session:{session_phone}", "active", ex=86400)
             new_state = SystemState.WHATSAPP_LINK_SENT
 
         elif payload.channel == "VOICE" and customer_phone:

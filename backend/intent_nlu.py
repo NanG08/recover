@@ -36,6 +36,7 @@ Respond with ONLY the intent name, nothing else. No explanation."""
 class IntentRecognizer:
     def __init__(self):
         self._groq_client = None
+        self.mock_mode = os.getenv("MOCK_MODE", "false").lower() == "true"
 
     def _get_groq(self):
         if self._groq_client is None:
@@ -57,12 +58,12 @@ class IntentRecognizer:
         if not text:
             return "DISPUTE_CHARGE", 0.1
 
-        client = self._get_groq()
+        client = None if self.mock_mode else self._get_groq()
         if client:
             try:
                 lang_hint = {"en": "English", "hi": "Hindi", "hr": "Haryanvi"}.get(language, "English")
                 response = client.chat.completions.create(
-                    model="meta-llama/llama-4-maverick-17b-128e-instruct",
+                    model="llama-3.1-8b-instant",
                     messages=[
                         {"role": "system", "content": _SYSTEM_PROMPT},
                         {"role": "user", "content": f"[Language: {lang_hint}] Customer said: {text}"},

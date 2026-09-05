@@ -23,7 +23,7 @@ Already available:
 - `POST /twilio/voice/start`
 - PostgreSQL and Redis through Docker Compose
 - Twilio Voice client in `backend/voice_service.py`
-- Twilio WhatsApp send client in `backend/whatsapp_service.py`
+- Twilio WhatsApp send client in `backend/twilio_client.py`
 
 Still required before production integrations work:
 
