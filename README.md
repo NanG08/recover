@@ -54,45 +54,65 @@ Both folders are intended to be committed together so that a single GitHub repos
 
 ## Getting started (production)
 
-1. **Clone the repository** (once it is on GitHub).
-2. **Create the environment files**:
+1. **Clone the repository**
+
    ```bash
-   cd nandika-razorpay
-   cp .env.example .env
-   # edit .env – fill TWILIO_*, GROQ_API_KEY, RAZORPAY_* and any Vapi vars you need
-   cd frontend && cp .env.example .env   # add VITE_DEEPGRAM_API_KEY if you use voice
+   git clone https://github.com/NanG08/recover.git
+   cd recover
    ```
-3. **Start the stack** (Docker Compose will spin up Postgres, Redis and expose the backend on port 8000):
+
+2. **Create the backend environment file**
+
+   ```bash
+   cp .env.example .env      # edit .env and fill in Twilio, Razorpay, Groq, etc.
+   ```
+
+3. **Create the frontend environment file** (Vite variables)
+
+   ```bash
+   cd frontend
+   # If a .env.example exists, copy it; otherwise edit the existing .env
+   cp .env.example .env   # optional – edit .env directly if needed
+   ```
+
+4. **Start all services**
+
    ```bash
    docker compose up -d
    ```
-4. **Run the frontend**:
+
+5. **Run the frontend**
+
    ```bash
    cd frontend
    npm install
    npm run dev   # Vite dev server proxies /api → http://127.0.0.1:8000
    ```
-5. **Expose the backend for Twilio / Vapi** – e.g. with ngrok:
+
+6. **Expose the backend (optional, for Twilio / Vapi callbacks)**
+
    ```bash
    ngrok http 8000
    # set PUBLIC_BASE_URL in .env to the https URL ngrok gives you
    ```
-6. Open the dashboard at `http://localhost:15173` and verify the **preflight** endpoint (`GET /config/preflight`).
+
+7. Open the dashboard at `http://localhost:15173` and verify the **preflight** endpoint (`GET /config/preflight`).
 
 ---
 
 ## Getting started (mock version)
 
-The mock folder provides a completely self‑contained environment that does **not** require real Twilio, Vapi, or Razorpay credentials. It is **only** for demonstration, testing and CI purposes.
+The repository includes a **mock mode** that runs the same services without requiring real Twilio, Vapi, or Razorpay credentials. Ensure `MOCK_MODE=true` in the `.env` file (default in `.env.example`).
 
 ```bash
-cd nandika-recover-main
-# No .env is needed – mock mode is the default
-docker compose up -d   # starts the same services but the backend uses stubbed clients
+# Ensure .env has MOCK_MODE=true (default)
+cp .env.example .env   # edit if you need to change other values
+docker compose up -d   # starts backend and frontend with stubbed external services
 cd frontend
 npm install
-npm run dev
+npm run dev   # Vite dev server proxies /api → http://127.0.0.1:8000
 ```
+
 
 You can now exercise the full UI flow; all external calls are simulated and recorded in the local PostgreSQL database.
 
