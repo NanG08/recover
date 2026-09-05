@@ -12,7 +12,7 @@ Dist/
 venv/
 .env/
 .venv/
-
+.env
 # Node / npm
 node_modules/
 package-lock.json
