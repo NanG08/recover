@@ -30,24 +30,24 @@ Both folders are intended to be committed together so that a single GitHub repos
 
 ## Repository layout
 
-```
+```text
 .
-├─ nandika-razorpay/            # Production implementation (Twilio, Vapi, real Razorpay keys)
-│   ├─ backend/                 # FastAPI app, FSM, Twilio/Vapi clients
-│   ├─ frontend/                # React + Vite dashboard
-│   ├─ docker-compose.yml       # Services: backend, postgres, redis
-│   ├─ .env.example             # Example env file – fill with real credentials
-│   └─ README.md                # (this file)
-│
-├─ nandika-recover-main/        # Mock implementation (no external accounts required)
-│   ├─ backend/                 # Same API surface, but all external calls are stubbed
-│   ├─ frontend/                # Lightweight UI – still uses the same dashboard code
-│   ├─ scripts/                 # `smoke_test.py` works out‑of‑the‑box
-│   └─ README.md                # Brief guide for the mock version
-│
-└─ docs/                        # Global documentation (setup, architecture, contribution)
-    ├─ integration.md           # Twilio, Vapi, Razorpay setup instructions
-    └─ development.md           # How to run the project locally (docker, ngrok, etc.)
+├─ backend/               # FastAPI backend, FSM, service clients
+│   ├─ __init__.py
+│   ├─ main.py
+│   └─ ... (other modules)
+├─ frontend/              # React + Vite dashboard
+│   ├─ src/
+│   ├─ public/
+│   └─ vite.config.ts
+├─ docs/                  # Documentation (integration.md, development.md)
+├─ infra/                 # Infrastructure scripts (e.g., Terraform, Cloud formation)
+├─ docker-compose.yml
+├─ Dockerfile
+├─ .env.example
+├─ .gitignore
+├─ ARCHITECTURE.svg
+└─ README.md
 ```
 
 ---
