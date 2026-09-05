@@ -125,6 +125,12 @@ All docs are kept in the `docs/` directory and referenced from this top‑level 
 
 Apache 2.0 – see `LICENSE` at the repository root.
 
+## Architecture Diagram
+
+![Architecture diagram](ARCHITECTURE.svg)
+
+---
+
 ---
 
 *This README was generated to give a clear, single source of truth for the combined repository, making it ready for upload to GitHub.*

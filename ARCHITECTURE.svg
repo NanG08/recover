@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="900" viewBox="0 0 1400 900">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#3787c5"/>
+    </marker>
+    <style>
+      text { font-family: Arial, Helvetica, sans-serif; fill: #43516a; }
+      .title { font-size: 29px; font-weight: 700; }
+      .section { font-size: 16px; font-weight: 700; }
+      .label { font-size: 16px; font-weight: 600; }
+      .small { font-size: 13px; fill: #718099; }
+      .tiny { font-size: 11px; fill: #718099; }
+      .box { fill: #fff; stroke-width: 2; }
+      .blue { fill: #eef6ff; stroke: #82bdff; }
+      .purple { fill: #f3efff; stroke: #b79cff; }
+      .orange { fill: #fff5e9; stroke: #ffab62; }
+      .green { fill: #edfffb; stroke: #42dfc9; }
+      .pink { fill: #fff0f7; stroke: #ef9bc4; }
+      .infra { fill: #edf8ff; stroke: #76c3ff; }
+      .inner { rx: 12; ry: 12; }
+      .line { fill: none; stroke: #3787c5; stroke-width: 2; marker-end: url(#arrow); }
+      .prod { fill: none; stroke: #e3632e; stroke-width: 2; marker-end: url(#arrow); }
+      .demo { fill: none; stroke: #df3a91; stroke-width: 2; marker-end: url(#arrow); }
+    </style>
+  </defs>
+
+  <rect width="1400" height="900" fill="#fff"/>
+  <text x="70" y="55" class="title">Recover - Payment Recovery System</text>
+
+  <rect x="70" y="90" width="320" height="310" rx="8" class="blue"/>
+  <text x="88" y="120" class="section">Client</text>
+  <rect x="110" y="165" width="240" height="125" class="box blue inner"/>
+  <text x="230" y="210" text-anchor="middle" class="label">Frontend</text>
+  <text x="230" y="232" text-anchor="middle" class="small">React + Vite</text>
+  <text x="230" y="251" text-anchor="middle" class="small">Dashboard UI</text>
+  <text x="230" y="350" text-anchor="middle" class="small">Serves on :5173</text>
+
+  <rect x="430" y="90" width="390" height="310" rx="8" class="purple"/>
+  <text x="450" y="120" class="section">Application Layer</text>
+  <rect x="475" y="160" width="285" height="105" class="box purple inner"/>
+  <text x="617" y="202" text-anchor="middle" class="label">Backend - FastAPI</text>
+  <text x="617" y="224" text-anchor="middle" class="small">REST API + WebSockets</text>
+  <path d="M510 315 L615 270 L740 315 L615 365 Z" fill="#eee9ff" stroke="#b79cff" stroke-width="2"/>
+  <text x="615" y="322" text-anchor="middle" class="label">FSM Orchestrator</text>
+  <text x="615" y="342" text-anchor="middle" class="small">Conversation state machine</text>
+
+  <rect x="860" y="90" width="470" height="310" rx="8" class="orange"/>
+  <text x="880" y="120" class="section">External Services (Production)</text>
+  <rect x="900" y="160" width="330" height="75" class="box orange inner"/>
+  <text x="1065" y="193" text-anchor="middle" class="label">Twilio WhatsApp</text>
+  <text x="1065" y="213" text-anchor="middle" class="small">Messaging</text>
+  <rect x="900" y="255" width="330" height="75" class="box orange inner"/>
+  <text x="1065" y="288" text-anchor="middle" class="label">Vapi</text>
+  <text x="1065" y="308" text-anchor="middle" class="small">Voice calls</text>
+  <rect x="900" y="350" width="330" height="75" class="box orange inner"/>
+  <text x="1065" y="383" text-anchor="middle" class="label">Razorpay</text>
+  <text x="1065" y="403" text-anchor="middle" class="small">Payment links + webhooks</text>
+
+  <rect x="70" y="455" width="750" height="205" rx="8" class="green"/>
+  <text x="88" y="485" class="section">Data Stores</text>
+  <ellipse cx="280" cy="555" rx="145" ry="35" fill="#fff" stroke="#42dfc9" stroke-width="2"/>
+  <path d="M135 555 v65 c0 20 65 35 145 35s145-15 145-35v-65" fill="#fff" stroke="#42dfc9" stroke-width="2"/>
+  <text x="280" y="560" text-anchor="middle" class="label">PostgreSQL</text>
+  <text x="280" y="582" text-anchor="middle" class="small">Persistent event store</text>
+  <ellipse cx="610" cy="555" rx="145" ry="35" fill="#fff" stroke="#42dfc9" stroke-width="2"/>
+  <path d="M465 555 v65 c0 20 65 35 145 35s145-15 145-35v-65" fill="#fff" stroke="#42dfc9" stroke-width="2"/>
+  <text x="610" y="560" text-anchor="middle" class="label">Redis</text>
+  <text x="610" y="582" text-anchor="middle" class="small">Cache + pub/sub for WebSockets</text>
+
+  <rect x="860" y="455" width="470" height="205" rx="8" class="pink"/>
+  <text x="880" y="485" class="section">Mock Services (Demo)</text>
+  <rect x="900" y="525" width="330" height="85" class="box pink inner"/>
+  <text x="1065" y="558" text-anchor="middle" class="label">Stubbed Twilio / Vapi / Razorpay</text>
+  <text x="1065" y="580" text-anchor="middle" class="small">No external API keys required</text>
+  <text x="1065" y="635" text-anchor="middle" class="tiny">Mock implementation for demo purposes only</text>
+
+  <rect x="70" y="710" width="1260" height="145" rx="8" class="infra"/>
+  <text x="88" y="740" class="section">Infrastructure &amp; Delivery</text>
+  <rect x="110" y="765" width="350" height="70" class="box infra inner"/>
+  <text x="285" y="793" text-anchor="middle" class="label">Docker Compose</text>
+  <text x="285" y="813" text-anchor="middle" class="tiny">backend - frontend - postgres - redis</text>
+  <rect x="525" y="765" width="350" height="70" class="box infra inner"/>
+  <text x="700" y="793" text-anchor="middle" class="label">Environment</text>
+  <text x="700" y="813" text-anchor="middle" class="tiny">.env supplies credentials - mock mode needs no keys</text>
+  <rect x="940" y="765" width="350" height="70" class="box infra inner"/>
+  <text x="1115" y="793" text-anchor="middle" class="label">CI/CD - GitHub Actions</text>
+  <text x="1115" y="813" text-anchor="middle" class="tiny">Smoke tests - Linters</text>
+
+  <path d="M350 225 H475" class="line"/>
+  <text x="412" y="213" text-anchor="middle" class="small">HTTP / WS</text>
+  <path d="M617 265 V300" class="line"/>
+  <path d="M760 312 H900" class="prod"/>
+  <text x="830" y="300" text-anchor="middle" class="small">prod mode</text>
+  <path d="M550 365 V455" class="line"/>
+  <path d="M680 365 V420 H820 V567 H900" class="demo"/>
+  <text x="820" y="445" text-anchor="middle" class="small">demo mode</text>
+  <path d="M285 765 V660" class="line"/>
+  <path d="M700 765 V660" class="line"/>
+</svg>
